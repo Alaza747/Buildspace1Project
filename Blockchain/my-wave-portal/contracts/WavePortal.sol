@@ -9,6 +9,10 @@ import "hardhat/console.sol";
 contract WavePortal {
     uint256 totalWaves;
 
+    constructor() payable {
+        console.log("We have been constructed!");
+    }
+
     event NewWave(address indexed from, uint256 timestamp, string message);
 
 
