@@ -30,6 +30,15 @@ contract WavePortal {
         waves.push(Wave(msg.sender, _message, block.timestamp));
 
         emit NewWave(msg.sender, block.timestamp, _message);
+
+        uint256 prizeAmount = 0.0001 ether;
+// Checking if Contract has enough ether        
+        require(
+            prizeAmount <= address(this).balance,
+            "sorry, no money left :("
+        );
+        (bool success, ) = (msg.sender).call{value: prizeAmount}("");
+        require(success, "Failed to withdraw!");
     }
 
 // With this func it will be easier to retrieve waves 

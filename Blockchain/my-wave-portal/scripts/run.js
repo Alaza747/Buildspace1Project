@@ -1,28 +1,24 @@
 const main = async () => {
-    const [owner, randomPerson] = await hre.ethers.getSigners();
     const waveContractFactory = await hre.ethers.getContractFactory("WavePortal");
     const waveContract = await waveContractFactory.deploy();
     await waveContract.deployed();
-
-    console.log("Contract deployed to:", waveContract.address);
-    console.log("Contract deployed by:", owner.address);
+    console.log("Contract Anton:", waveContract.address);
 
     let waveCount;
     waveCount = await waveContract.getTotalWaves();
+    console.log(waveCount.toNumber());
 
-    let waveTxn = await waveContract.wave();
-    await waveTxn.wait();
+// Sending a test transaction
+    let waveTxn = await waveContract.wave("Test message!");
+    await waveTxn.wait(); //waiting for the transaction to be mined
 
-    waveCount = await waveContract.getTotalWaves();
-
-    waveTxn = await waveContract.connect(randomPerson).wave();
-    await waveTxn.wait();
+    const [_, randomPerson] = await hre.ethers.getSigners();
+    waveTxn = await waveContract.connect(randomPerson).wave("Another test message!");
+    await waveTxn.wait(); //waiting
     
-    waveCount = await waveContract.getTotalWaves();
-
-    let waveCountByUser;
-    waveCountByUser = await waveContract.returnWaveCount();
-
+// get output of AllWaves function (array of structs)
+    let allWaves = await waveContract.getAllWaves();
+    console.log(allWaves);
 };
 
 const runMain = async () => {
