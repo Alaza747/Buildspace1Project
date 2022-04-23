@@ -32,8 +32,17 @@ contract WavePortal {
         seed = (block.timestamp + block.difficulty) % 100;
     }
 
+// When did this address wave last time?
+    mapping(address => uint256) public lastWaved;
 
     function wave(string memory _message) public {
+        require(
+            lastWaved[msg.sender] + 15 minutes < block.timestamp,
+            "Wait 15m"
+        );
+
+        lastWaved[msg.sender] = block.timestamp;
+        
         totalWaves += 1;
         console.log("%s has waved", msg.sender, _message);
 
