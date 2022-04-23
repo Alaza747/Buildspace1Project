@@ -9,9 +9,9 @@ import "hardhat/console.sol";
 contract WavePortal {
     uint256 totalWaves;
 
-    constructor() payable {
-        console.log("We have been constructed!");
-    }
+
+// Needed for the random generator
+    uint256 private seed;
 
     event NewWave(address indexed from, uint256 timestamp, string message);
 
@@ -26,6 +26,13 @@ contract WavePortal {
 // Declaration of the array of structs, to save all the waves
     Wave[] waves;
 
+    constructor() payable {
+        console.log("We have been constructed!");
+// Setting initial seed
+        seed = (block.timestamp + block.difficulty) % 100;
+    }
+
+
     function wave(string memory _message) public {
         totalWaves += 1;
         console.log("%s has waved", msg.sender, _message);
@@ -33,17 +40,22 @@ contract WavePortal {
 // Storing the wave to the "all-waves" array
         waves.push(Wave(msg.sender, _message, block.timestamp));
 
-        emit NewWave(msg.sender, block.timestamp, _message);
+// Generate new seed for the new user
+        seed = (block.timestamp + block.difficulty + seed) % 100;
+        console.log("Random # generated: %d", seed);
 
-        uint256 prizeAmount = 0.0001 ether;
-// Checking if Contract has enough ether        
-        require(
-            prizeAmount <= address(this).balance,
-            "sorry, no money left :("
-        );
-        (bool success, ) = (msg.sender).call{value: prizeAmount}("");
-        require(success, "Failed to withdraw!");
-    }
+        if (seed <= 50){
+            console.log("%s won", msg.sender);
+            uint256 prizeAmount = 0.0001 ether;
+            require(
+                prizeAmount <= address(this).balance,
+                "sorry, no money left :("
+             );
+            (bool success, ) = (msg.sender).call{value: prizeAmount}("");
+            require(success, "Failed to withdraw!");
+        }  
+        emit NewWave(msg.sender, block.timestamp, _message);
+    }        
 
 // With this func it will be easier to retrieve waves 
     function getAllWaves() public view returns (Wave[] memory){
